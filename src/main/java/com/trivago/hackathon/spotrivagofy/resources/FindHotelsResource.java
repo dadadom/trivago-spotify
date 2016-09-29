@@ -33,8 +33,6 @@ import javax.ws.rs.core.MediaType;
 public class FindHotelsResource
 {
     private final Client client;
-    private final String accessId;
-    private final String secretKey;
     private final SpotifyTrivagoApiConfiguration configuration;
     private ExecutorService findHotelsExecutors;
     private Cache<Integer, TourWithRecommendationResponse.HotelRecommendation> hotelRecommendationCache;
@@ -42,8 +40,7 @@ public class FindHotelsResource
     public FindHotelsResource(Client client, SpotifyTrivagoApiConfiguration configuration, ExecutorService findHotelsExecutors)
     {
         this.client = client;
-        this.accessId = configuration.getAccessId();
-        this.secretKey = configuration.getSecretKey();
+        this.configuration = configuration;
         this.findHotelsExecutors = findHotelsExecutors;
 
         hotelRecommendationCache = TCacheFactory.standardFactory()
@@ -51,8 +48,6 @@ public class FindHotelsResource
                 // four hours caching time
                 .setMaxCacheTime(60 * 60 * 4)
                 .build();
-
-        this.configuration = configuration;
     }
 
     @POST
