@@ -1,5 +1,6 @@
 package com.trivago.hackathon.spotrivagofy.resources;
 
+import com.codahale.metrics.annotation.Timed;
 import com.trivago.hackathon.spotrivagofy.SpotifyTrivagoApiConfiguration;
 import com.trivago.hackathon.spotrivagofy.api.TourWithRecommendationResponse;
 import com.trivago.hackathon.spotrivagofy.api.ToursRequest;
@@ -56,6 +57,7 @@ public class FindHotelsResource
     }
 
     @POST
+    @Timed
     public List<TourWithRecommendationResponse> findHotelsForTours(ToursRequest tours)
     {
         final List<TourWithRecommendationResponse> toursWithRecommendations = new ArrayList<>(tours.getTours().size());

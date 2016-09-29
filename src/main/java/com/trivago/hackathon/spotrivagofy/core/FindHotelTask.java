@@ -131,7 +131,7 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
         Response response = null;
         int retryCount = 0;
 
-        while (retryCount < 10 && (response == null || 200 != response.getStatus()))
+        while (retryCount < 5 && (response == null || 200 != response.getStatus()))
         {
             try
             {

@@ -24,9 +24,9 @@ public class SpotifyTrivagoApiConfiguration extends Configuration
     @NotNull
     private String secretKey;
 
-    private int connectTimeout = 20000;
+    private int connectTimeout = 5000;
 
-    private int readTimeout = 20000;
+    private int readTimeout = 10000;
 
     private String lastFmApiKey;
 
