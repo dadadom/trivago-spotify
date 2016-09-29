@@ -95,12 +95,13 @@ public class FindHotelsResource
             toursWithRecommendations.add(tourWithRecommendationResponse);
         }
 
+        int timeout = 30;
         for (Map.Entry<Future<TourWithRecommendationResponse.HotelRecommendation>, TourWithRecommendationResponse> futureTourWithRecommendationEntry : futuresForRequests.entrySet())
         {
             final TourWithRecommendationResponse tourWithRecommendationResponse = futureTourWithRecommendationEntry.getValue();
             try
             {
-                final TourWithRecommendationResponse.HotelRecommendation hotelRecommendation = futureTourWithRecommendationEntry.getKey().get(30, TimeUnit.SECONDS);
+                final TourWithRecommendationResponse.HotelRecommendation hotelRecommendation = futureTourWithRecommendationEntry.getKey().get(timeout, TimeUnit.SECONDS);
                 tourWithRecommendationResponse.setHotelRecommendation(hotelRecommendation);
 
                 // make sure to not put error results into the cache so they are re-fetched every time
@@ -114,6 +115,7 @@ public class FindHotelsResource
                 futureTourWithRecommendationEntry.getKey().cancel(true);
                 tourWithRecommendationResponse.setHotelRecommendation(null);
             }
+            timeout = Math.max(timeout / 2, 1);
         }
 
         for (TourWithRecommendationResponse tour : toursWithRecommendations)
