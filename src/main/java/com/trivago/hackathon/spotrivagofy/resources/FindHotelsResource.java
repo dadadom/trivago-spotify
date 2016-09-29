@@ -100,6 +100,7 @@ public class FindHotelsResource
             final HotelsResponse.Hotel hotel = hotelsResponseEntity.getHotels().get(0);
             hotelRecommendation.setItemId(hotel.getId());
             hotelRecommendation.setHotelName(hotel.getName());
+            hotelRecommendation.setError(false);
         }
 
         return hotelRecommendation;

@@ -7,6 +7,7 @@ public class HotelRecommendation
 {
     private int itemId;
     private String hotelName;
+    private boolean error = true;
 
     public int getItemId()
     {
@@ -26,5 +27,15 @@ public class HotelRecommendation
     public void setHotelName(String hotelName)
     {
         this.hotelName = hotelName;
+    }
+
+    public boolean isError()
+    {
+        return error;
+    }
+
+    public void setError(boolean error)
+    {
+        this.error = error;
     }
 }
