@@ -1,6 +1,6 @@
 package com.trivago.hackathon.spotrivagofy.core;
 
-import com.trivago.hackathon.spotrivagofy.SpotifyTrivagoApiConfiguration;
+import com.trivago.hackathon.spotrivagofy.SpotifyTrivagoConfiguration;
 import com.trivago.hackathon.spotrivagofy.api.HotelsResponse;
 import com.trivago.hackathon.spotrivagofy.api.LocationsResponse;
 import com.trivago.hackathon.spotrivagofy.api.TourWithRecommendationResponse;
@@ -37,7 +37,7 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
 
     private static Cache<String, Integer> pathsForCityCache = TCacheFactory.standardFactory().<String, Integer>builder().setMaxCacheTime(60 * 60 * 24).build();
 
-    public FindHotelTask(String city, String date, Client client, SpotifyTrivagoApiConfiguration configuration)
+    public FindHotelTask(String city, String date, Client client, SpotifyTrivagoConfiguration configuration)
     {
         this.city = city;
         this.date = date;

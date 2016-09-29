@@ -11,7 +11,7 @@ import io.dropwizard.client.JerseyClientConfiguration;
 /**
  * Created by Dominik Sandjaja on 29/09/16.
  */
-public class SpotifyTrivagoApiConfiguration extends Configuration
+public class SpotifyTrivagoConfiguration extends Configuration
 {
 
     @Valid

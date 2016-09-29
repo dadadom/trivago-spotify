@@ -17,7 +17,7 @@ import io.dropwizard.setup.Environment;
 /**
  * Created by Dominik Sandjaja on 29/09/16.
  */
-public class SpotifyTrivagoApplication extends Application<SpotifyTrivagoApiConfiguration>
+public class SpotifyTrivagoApplication extends Application<SpotifyTrivagoConfiguration>
 {
 
     public static void main(String[] args) throws Exception
@@ -26,12 +26,12 @@ public class SpotifyTrivagoApplication extends Application<SpotifyTrivagoApiConf
     }
 
     @Override
-    public void initialize(Bootstrap<SpotifyTrivagoApiConfiguration> bootstrap)
+    public void initialize(Bootstrap<SpotifyTrivagoConfiguration> bootstrap)
     {
         // nothing to do yet
     }
 
-    public void run(SpotifyTrivagoApiConfiguration config, Environment environment) throws Exception
+    public void run(SpotifyTrivagoConfiguration config, Environment environment) throws Exception
     {
         final ExecutorService findHotelsExecutors = new InstrumentedExecutorService(
                 environment.lifecycle().executorService("FindHotels")

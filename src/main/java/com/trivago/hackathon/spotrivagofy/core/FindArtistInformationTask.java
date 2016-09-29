@@ -1,6 +1,6 @@
 package com.trivago.hackathon.spotrivagofy.core;
 
-import com.trivago.hackathon.spotrivagofy.SpotifyTrivagoApiConfiguration;
+import com.trivago.hackathon.spotrivagofy.SpotifyTrivagoConfiguration;
 import com.trivago.hackathon.spotrivagofy.api.LastFmResponse;
 import com.trivago.triava.tcache.TCacheFactory;
 import com.trivago.triava.tcache.eviction.Cache;
@@ -23,12 +23,12 @@ public class FindArtistInformationTask implements Callable<String>
     private final String artist;
     private final String lastFmApiKey;
     private final Client client;
-    private final SpotifyTrivagoApiConfiguration configuration;
+    private final SpotifyTrivagoConfiguration configuration;
 
     private static Cache<String, String> descriptionsForArtist = TCacheFactory.standardFactory().<String, String>builder().setMaxCacheTime(60 * 60 * 24 * 180).build();
 
 
-    public FindArtistInformationTask(String artist, Client client, SpotifyTrivagoApiConfiguration configuration)
+    public FindArtistInformationTask(String artist, Client client, SpotifyTrivagoConfiguration configuration)
     {
         this.artist = artist;
         this.lastFmApiKey = configuration.getLastFmApiKey();

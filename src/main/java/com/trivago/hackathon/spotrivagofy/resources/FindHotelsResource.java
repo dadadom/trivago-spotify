@@ -1,7 +1,7 @@
 package com.trivago.hackathon.spotrivagofy.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.trivago.hackathon.spotrivagofy.SpotifyTrivagoApiConfiguration;
+import com.trivago.hackathon.spotrivagofy.SpotifyTrivagoConfiguration;
 import com.trivago.hackathon.spotrivagofy.api.TourWithRecommendationResponse;
 import com.trivago.hackathon.spotrivagofy.api.ToursRequest;
 import com.trivago.hackathon.spotrivagofy.core.FindArtistInformationTask;
@@ -39,12 +39,12 @@ import javax.ws.rs.core.MediaType;
 public class FindHotelsResource
 {
     private final Client client;
-    private final SpotifyTrivagoApiConfiguration configuration;
+    private final SpotifyTrivagoConfiguration configuration;
     private final ExecutorService findHotelsExecutors;
     private final ExecutorService findArtistInformationExecutors;
     private Cache<Integer, TourWithRecommendationResponse.HotelRecommendation> hotelRecommendationCache;
 
-    public FindHotelsResource(Client client, SpotifyTrivagoApiConfiguration configuration, ExecutorService findHotelsExecutors, ExecutorService findArtistInformationExecutors)
+    public FindHotelsResource(Client client, SpotifyTrivagoConfiguration configuration, ExecutorService findHotelsExecutors, ExecutorService findArtistInformationExecutors)
     {
         this.client = client;
         this.configuration = configuration;
