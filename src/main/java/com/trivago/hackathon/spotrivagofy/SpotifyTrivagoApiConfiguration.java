@@ -28,6 +28,8 @@ public class SpotifyTrivagoApiConfiguration extends Configuration
 
     private int readTimeout = 20000;
 
+    private String lastFmApiKey;
+
     @JsonProperty("jerseyClientConfiguration")
     public JerseyClientConfiguration getJerseyClientConfiguration()
     {
@@ -57,4 +59,11 @@ public class SpotifyTrivagoApiConfiguration extends Configuration
     {
         return readTimeout;
     }
+
+    @JsonProperty("lastFmApiKey")
+    public String getLastFmApiKey()
+    {
+        return lastFmApiKey;
+    }
+
 }

@@ -1,10 +1,13 @@
 package com.trivago.hackathon.spotrivagofy.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
 /**
  * Created by Dominik Sandjaja on 29/09/16.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ToursRequest
 {
     private List<Tour> tours;

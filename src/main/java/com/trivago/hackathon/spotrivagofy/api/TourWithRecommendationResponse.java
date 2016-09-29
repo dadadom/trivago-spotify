@@ -9,6 +9,7 @@ public class TourWithRecommendationResponse
     private String date;
     private String artist;
     private HotelRecommendation hotelRecommendation;
+    private String artistInformation;
 
     public String getCity()
     {
@@ -48,6 +49,16 @@ public class TourWithRecommendationResponse
     public void setHotelRecommendation(HotelRecommendation hotelRecommendation)
     {
         this.hotelRecommendation = hotelRecommendation;
+    }
+
+    public void setArtistInformation(String artistInformation)
+    {
+        this.artistInformation = artistInformation;
+    }
+
+    public String getArtistInformation()
+    {
+        return artistInformation;
     }
 
     /**

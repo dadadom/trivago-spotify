@@ -3,6 +3,7 @@ package com.trivago.hackathon.spotrivagofy.resources;
 import com.trivago.hackathon.spotrivagofy.SpotifyTrivagoApiConfiguration;
 import com.trivago.hackathon.spotrivagofy.api.TourWithRecommendationResponse;
 import com.trivago.hackathon.spotrivagofy.api.ToursRequest;
+import com.trivago.hackathon.spotrivagofy.core.FindArtistInformationTask;
 import com.trivago.hackathon.spotrivagofy.core.FindHotelTask;
 import com.trivago.triava.tcache.TCacheFactory;
 import com.trivago.triava.tcache.eviction.Cache;
@@ -11,11 +12,15 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -57,6 +62,14 @@ public class FindHotelsResource
 
         final Map<Future<TourWithRecommendationResponse.HotelRecommendation>, TourWithRecommendationResponse> futuresForRequests = new HashMap<>();
 
+        final Set<String> artists = tours.getTours().stream().map(ToursRequest.Tour::getArtist).collect(Collectors.toSet());
+        Map<String, Future<String>> artistFutures = new HashMap<>(artists.size());
+        for (String artist : artists)
+        {
+            final Future<String> artistFuture = findHotelsExecutors.submit(new FindArtistInformationTask(artist, client, configuration));
+            artistFutures.put(artist, artistFuture);
+        }
+
         for (ToursRequest.Tour tour : tours.getTours())
         {
             final TourWithRecommendationResponse tourWithRecommendationResponse = new TourWithRecommendationResponse();
@@ -94,6 +107,17 @@ public class FindHotelsResource
             } catch (ExecutionException | InterruptedException e)
             {
                 tourWithRecommendationResponse.setHotelRecommendation(null);
+            }
+        }
+
+        for (TourWithRecommendationResponse tour : toursWithRecommendations)
+        {
+            try
+            {
+                tour.setArtistInformation(artistFutures.get(tour.getArtist()).get(60, TimeUnit.SECONDS));
+            } catch (Exception e)
+            {
+                e.printStackTrace();
             }
         }
         return toursWithRecommendations;
