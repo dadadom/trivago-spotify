@@ -112,7 +112,6 @@ public class FindHotelsResource
 
             } catch (TimeoutException | ExecutionException | InterruptedException e)
             {
-                futureTourWithRecommendationEntry.getKey().cancel(true);
                 tourWithRecommendationResponse.setHotelRecommendation(null);
             }
             timeout = Math.max(timeout / 2, 1);
@@ -125,7 +124,6 @@ public class FindHotelsResource
                 tour.setArtistInformation(artistFutures.get(tour.getArtist()).get(10, TimeUnit.SECONDS));
             } catch (Exception e)
             {
-                artistFutures.get(tour.getArtist()).cancel(true);
             }
         }
         return toursWithRecommendations;
