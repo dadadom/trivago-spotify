@@ -32,8 +32,12 @@ public class SpotifyTrivagoApplication extends Application<SpotifyTrivagoApiConf
 
     public void run(SpotifyTrivagoApiConfiguration config, Environment environment) throws Exception
     {
-        final ExecutorService findHotelsExecutors = environment.lifecycle().executorService("FindHotels").build();
-        final ExecutorService findArtistsExecutors = environment.lifecycle().executorService("FindArtistsInformation").build();
+        final ExecutorService findHotelsExecutors = environment.lifecycle().executorService("FindHotels")
+                .maxThreads(50)
+                .build();
+        final ExecutorService findArtistsExecutors = environment.lifecycle().executorService("FindArtistsInformation")
+                .maxThreads(10)
+                .build();
 
         final Client client = new JerseyClientBuilder(environment).using(config.getJerseyClientConfiguration()).build(getName());
         environment.jersey().register(new FindHotelsResource(client, config, findHotelsExecutors, findArtistsExecutors));
