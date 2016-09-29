@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -97,7 +98,7 @@ public class FindHotelsResource
             final TourWithRecommendationResponse tourWithRecommendationResponse = futureTourWithRecommendationEntry.getValue();
             try
             {
-                final TourWithRecommendationResponse.HotelRecommendation hotelRecommendation = futureTourWithRecommendationEntry.getKey().get();
+                final TourWithRecommendationResponse.HotelRecommendation hotelRecommendation = futureTourWithRecommendationEntry.getKey().get(30, TimeUnit.SECONDS);
                 tourWithRecommendationResponse.setHotelRecommendation(hotelRecommendation);
 
                 // make sure to not put error results into the cache so they are re-fetched every time
@@ -106,7 +107,7 @@ public class FindHotelsResource
                     hotelRecommendationCache.put(new HashCodeBuilder().append(tourWithRecommendationResponse.getCity()).append(tourWithRecommendationResponse.getDate()).toHashCode(), hotelRecommendation);
                 }
 
-            } catch (ExecutionException | InterruptedException e)
+            } catch (TimeoutException | ExecutionException | InterruptedException e)
             {
                 tourWithRecommendationResponse.setHotelRecommendation(null);
             }
