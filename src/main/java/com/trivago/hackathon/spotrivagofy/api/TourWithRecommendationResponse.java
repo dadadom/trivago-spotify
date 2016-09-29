@@ -1,11 +1,9 @@
 package com.trivago.hackathon.spotrivagofy.api;
 
-import com.trivago.hackathon.spotrivagofy.api.HotelRecommendation;
-
 /**
  * Created by Dominik Sandjaja on 29/09/16.
  */
-public class TourWithRecommendation
+public class TourWithRecommendationResponse
 {
     private String city;
     private String date;
@@ -50,5 +48,45 @@ public class TourWithRecommendation
     public void setHotelRecommendation(HotelRecommendation hotelRecommendation)
     {
         this.hotelRecommendation = hotelRecommendation;
+    }
+
+    /**
+     * Created by Dominik Sandjaja on 29/09/16.
+     */
+    public static class HotelRecommendation
+    {
+        private int itemId;
+        private String hotelName;
+        private boolean error = true;
+
+        public int getItemId()
+        {
+            return itemId;
+        }
+
+        public void setItemId(int itemId)
+        {
+            this.itemId = itemId;
+        }
+
+        public String getHotelName()
+        {
+            return hotelName;
+        }
+
+        public void setHotelName(String hotelName)
+        {
+            this.hotelName = hotelName;
+        }
+
+        public boolean isError()
+        {
+            return error;
+        }
+
+        public void setError(boolean error)
+        {
+            this.error = error;
+        }
     }
 }

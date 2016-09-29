@@ -1,8 +1,8 @@
 package com.trivago.hackathon.spotrivagofy.core;
 
-import com.trivago.hackathon.spotrivagofy.api.HotelRecommendation;
 import com.trivago.hackathon.spotrivagofy.api.HotelsResponse;
 import com.trivago.hackathon.spotrivagofy.api.LocationsResponse;
+import com.trivago.hackathon.spotrivagofy.api.TourWithRecommendationResponse;
 
 import org.glassfish.jersey.client.ClientProperties;
 
@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 /**
  * Created by Dominik Sandjaja on 29/09/16.
  */
-public class FindHotelTask implements Callable<HotelRecommendation>
+public class FindHotelTask implements Callable<TourWithRecommendationResponse.HotelRecommendation>
 {
     private String city;
     private String date;
@@ -42,17 +42,17 @@ public class FindHotelTask implements Callable<HotelRecommendation>
     }
 
     @Override
-    public HotelRecommendation call() throws Exception
+    public TourWithRecommendationResponse.HotelRecommendation call() throws Exception
     {
         return findHotel(city, date);
     }
 
 
-    private HotelRecommendation findHotel(String queryLocation, String date) throws InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException, InterruptedException
+    private TourWithRecommendationResponse.HotelRecommendation findHotel(String queryLocation, String date) throws InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException, InterruptedException
     {
         int pathId = findBestPathId(queryLocation);
 
-        final HotelRecommendation hotelRecommendation = new HotelRecommendation();
+        final TourWithRecommendationResponse.HotelRecommendation hotelRecommendation = new TourWithRecommendationResponse.HotelRecommendation();
 
         if (pathId < 0)
         {

@@ -1,7 +1,6 @@
 package com.trivago.hackathon.spotrivagofy.resources;
 
-import com.trivago.hackathon.spotrivagofy.api.HotelRecommendation;
-import com.trivago.hackathon.spotrivagofy.api.TourWithRecommendation;
+import com.trivago.hackathon.spotrivagofy.api.TourWithRecommendationResponse;
 import com.trivago.hackathon.spotrivagofy.api.ToursRequest;
 import com.trivago.hackathon.spotrivagofy.core.FindHotelTask;
 
@@ -42,34 +41,34 @@ public class FindHotelsResource
     }
 
     @POST
-    public List<TourWithRecommendation> findHotelsForTours(ToursRequest tours)
+    public List<TourWithRecommendationResponse> findHotelsForTours(ToursRequest tours)
     {
-        final List<TourWithRecommendation> toursWithRecommendations = new ArrayList<>(tours.getTours().size());
+        final List<TourWithRecommendationResponse> toursWithRecommendations = new ArrayList<>(tours.getTours().size());
 
-        final Map<Future<HotelRecommendation>, TourWithRecommendation> futuresForRequests = new HashMap<>();
+        final Map<Future<TourWithRecommendationResponse.HotelRecommendation>, TourWithRecommendationResponse> futuresForRequests = new HashMap<>();
 
         for (ToursRequest.Tour tour : tours.getTours())
         {
-            final com.trivago.hackathon.spotrivagofy.api.TourWithRecommendation tourWithRecommendation = new com.trivago.hackathon.spotrivagofy.api.TourWithRecommendation();
-            tourWithRecommendation.setArtist(tour.getArtist());
-            tourWithRecommendation.setCity(tour.getCity());
-            tourWithRecommendation.setDate(tour.getDate());
-            final Future<HotelRecommendation> future = findHotelsExecutors.submit(new FindHotelTask(tour.getCity(), tour.getDate(), accessId, secretKey, client));
-            futuresForRequests.put(future, tourWithRecommendation);
+            final TourWithRecommendationResponse tourWithRecommendationResponse = new TourWithRecommendationResponse();
+            tourWithRecommendationResponse.setArtist(tour.getArtist());
+            tourWithRecommendationResponse.setCity(tour.getCity());
+            tourWithRecommendationResponse.setDate(tour.getDate());
+            final Future<TourWithRecommendationResponse.HotelRecommendation> future = findHotelsExecutors.submit(new FindHotelTask(tour.getCity(), tour.getDate(), accessId, secretKey, client));
+            futuresForRequests.put(future, tourWithRecommendationResponse);
         }
-        for (Map.Entry<Future<HotelRecommendation>, TourWithRecommendation> futureTourWithRecommendationEntry : futuresForRequests.entrySet())
+        for (Map.Entry<Future<TourWithRecommendationResponse.HotelRecommendation>, TourWithRecommendationResponse> futureTourWithRecommendationEntry : futuresForRequests.entrySet())
         {
-            final TourWithRecommendation tourWithRecommendation = futureTourWithRecommendationEntry.getValue();
+            final TourWithRecommendationResponse tourWithRecommendationResponse = futureTourWithRecommendationEntry.getValue();
             try
             {
-                final HotelRecommendation hotelRecommendation = futureTourWithRecommendationEntry.getKey().get();
-                tourWithRecommendation.setHotelRecommendation(hotelRecommendation);
+                final TourWithRecommendationResponse.HotelRecommendation hotelRecommendation = futureTourWithRecommendationEntry.getKey().get();
+                tourWithRecommendationResponse.setHotelRecommendation(hotelRecommendation);
 
             } catch (ExecutionException | InterruptedException e)
             {
-                tourWithRecommendation.setHotelRecommendation(null);
+                tourWithRecommendationResponse.setHotelRecommendation(null);
             }
-            toursWithRecommendations.add(tourWithRecommendation);
+            toursWithRecommendations.add(tourWithRecommendationResponse);
         }
         return toursWithRecommendations;
     }
