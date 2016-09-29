@@ -24,6 +24,10 @@ public class SpotifyTrivagoApiConfiguration extends Configuration
     @NotNull
     private String secretKey;
 
+    private int connectTimeout = 20000;
+
+    private int readTimeout = 20000;
+
     @JsonProperty("jerseyClientConfiguration")
     public JerseyClientConfiguration getJerseyClientConfiguration()
     {
@@ -40,5 +44,17 @@ public class SpotifyTrivagoApiConfiguration extends Configuration
     public String getSecretKey()
     {
         return secretKey;
+    }
+
+    @JsonProperty("connectTimeout")
+    public int getConnectTimeout()
+    {
+        return connectTimeout;
+    }
+
+    @JsonProperty("readTimeout")
+    public int getReadTimeout()
+    {
+        return readTimeout;
     }
 }

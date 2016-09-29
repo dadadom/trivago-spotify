@@ -1,5 +1,6 @@
 package com.trivago.hackathon.spotrivagofy.core;
 
+import com.trivago.hackathon.spotrivagofy.SpotifyTrivagoApiConfiguration;
 import com.trivago.hackathon.spotrivagofy.api.HotelsResponse;
 import com.trivago.hackathon.spotrivagofy.api.LocationsResponse;
 import com.trivago.hackathon.spotrivagofy.api.TourWithRecommendationResponse;
@@ -30,16 +31,20 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
     private String date;
     private String accessId;
     private String secretKey;
+    private int connectTimeout;
+    private int readTimeout;
     private Client client;
 
     private static Cache<String, Integer> pathsForCityCache = TCacheFactory.standardFactory().<String, Integer>builder().setMaxCacheTime(60 * 60 * 24).build();
 
-    public FindHotelTask(String city, String date, String accessId, String secretKey, Client client)
+    public FindHotelTask(String city, String date, Client client, SpotifyTrivagoApiConfiguration configuration)
     {
         this.city = city;
         this.date = date;
-        this.accessId = accessId;
-        this.secretKey = secretKey;
+        this.accessId = configuration.getAccessId();
+        this.secretKey = configuration.getSecretKey();
+        this.connectTimeout = configuration.getConnectTimeout();
+        this.readTimeout = configuration.getReadTimeout();
         this.client = client;
     }
 
@@ -131,10 +136,10 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
             try
             {
                 response = client.target(requestBuilder.build())
-                        .property(ClientProperties.CONNECT_TIMEOUT, 25_000)
-                        .property(ClientProperties.READ_TIMEOUT, 25_000)
+                        .property(ClientProperties.CONNECT_TIMEOUT, connectTimeout)
+                        .property(ClientProperties.READ_TIMEOUT, readTimeout)
                         .request()
-                        .acceptLanguage("en-GB")
+                        .acceptLanguage("de-DE")
                         .accept("application/vnd.trivago.affiliate.hal+json;version=1")
                         .get();
             } catch (Exception e)

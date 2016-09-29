@@ -1,5 +1,6 @@
 package com.trivago.hackathon.spotrivagofy.resources;
 
+import com.trivago.hackathon.spotrivagofy.SpotifyTrivagoApiConfiguration;
 import com.trivago.hackathon.spotrivagofy.api.TourWithRecommendationResponse;
 import com.trivago.hackathon.spotrivagofy.api.ToursRequest;
 import com.trivago.hackathon.spotrivagofy.core.FindHotelTask;
@@ -34,14 +35,15 @@ public class FindHotelsResource
     private final Client client;
     private final String accessId;
     private final String secretKey;
+    private final SpotifyTrivagoApiConfiguration configuration;
     private ExecutorService findHotelsExecutors;
     private Cache<Integer, TourWithRecommendationResponse.HotelRecommendation> hotelRecommendationCache;
 
-    public FindHotelsResource(Client client, String accessId, String secretKey, ExecutorService findHotelsExecutors)
+    public FindHotelsResource(Client client, SpotifyTrivagoApiConfiguration configuration, ExecutorService findHotelsExecutors)
     {
         this.client = client;
-        this.accessId = accessId;
-        this.secretKey = secretKey;
+        this.accessId = configuration.getAccessId();
+        this.secretKey = configuration.getSecretKey();
         this.findHotelsExecutors = findHotelsExecutors;
 
         hotelRecommendationCache = TCacheFactory.standardFactory()
@@ -49,6 +51,8 @@ public class FindHotelsResource
                 // four hours caching time
                 .setMaxCacheTime(60 * 60 * 4)
                 .build();
+
+        this.configuration = configuration;
     }
 
     @POST
@@ -69,7 +73,7 @@ public class FindHotelsResource
             final TourWithRecommendationResponse.HotelRecommendation hotelRecommendation = hotelRecommendationCache.get(hashCode);
             if (hotelRecommendation == null)
             {
-                final Future<TourWithRecommendationResponse.HotelRecommendation> future = findHotelsExecutors.submit(new FindHotelTask(tour.getCity(), tour.getDate(), accessId, secretKey, client));
+                final Future<TourWithRecommendationResponse.HotelRecommendation> future = findHotelsExecutors.submit(new FindHotelTask(tour.getCity(), tour.getDate(), client, configuration));
                 futuresForRequests.put(future, tourWithRecommendationResponse);
             }
             else

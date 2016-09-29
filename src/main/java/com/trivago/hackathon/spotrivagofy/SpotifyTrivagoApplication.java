@@ -35,7 +35,7 @@ public class SpotifyTrivagoApplication extends Application<SpotifyTrivagoApiConf
         final ExecutorService findHotelsExecutors = environment.lifecycle().executorService("FindHotelsRequests").build();
 
         final Client client = new JerseyClientBuilder(environment).using(config.getJerseyClientConfiguration()).build(getName());
-        environment.jersey().register(new FindHotelsResource(client, config.getAccessId(), config.getSecretKey(), findHotelsExecutors));
+        environment.jersey().register(new FindHotelsResource(client, config, findHotelsExecutors));
 
         environment.jersey().register(MultiPartFeature.class);
 
