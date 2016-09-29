@@ -75,8 +75,7 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
         {
             final HotelsResponse hotelsResponseEntity = hotelsResponse.readEntity(HotelsResponse.class);
             final HotelsResponse.Hotel hotel = hotelsResponseEntity.getHotels().get(0);
-            hotelRecommendation.setItemId(hotel.getId());
-            hotelRecommendation.setHotelName(hotel.getName());
+            hotelRecommendation.setHotel(hotel);
             hotelRecommendation.setError(false);
         }
         else

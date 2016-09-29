@@ -55,28 +55,17 @@ public class TourWithRecommendationResponse
      */
     public static class HotelRecommendation
     {
-        private int itemId;
-        private String hotelName;
+        private HotelsResponse.Hotel hotel;
         private boolean error = true;
 
-        public int getItemId()
+        public HotelsResponse.Hotel getHotel()
         {
-            return itemId;
+            return hotel;
         }
 
-        public void setItemId(int itemId)
+        public void setHotel(HotelsResponse.Hotel hotel)
         {
-            this.itemId = itemId;
-        }
-
-        public String getHotelName()
-        {
-            return hotelName;
-        }
-
-        public void setHotelName(String hotelName)
-        {
-            this.hotelName = hotelName;
+            this.hotel = hotel;
         }
 
         public boolean isError()
@@ -88,5 +77,7 @@ public class TourWithRecommendationResponse
         {
             this.error = error;
         }
+
+
     }
 }
