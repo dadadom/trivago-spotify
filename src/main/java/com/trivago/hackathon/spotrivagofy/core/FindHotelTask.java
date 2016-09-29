@@ -89,7 +89,9 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
 
     private int findBestPathId(String queryLocation) throws UnsupportedEncodingException, InterruptedException, InvalidKeyException, NoSuchAlgorithmException
     {
-        final Integer pathIdFromCache = pathsForCityCache.get(queryLocation);
+        String normalizedQueryLocation = queryLocation.trim().toLowerCase();
+
+        final Integer pathIdFromCache = pathsForCityCache.get(normalizedQueryLocation);
         if (pathIdFromCache != null)
         {
             return pathIdFromCache;
@@ -115,7 +117,7 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
         }
         final LocationsResponse.Locations.Location actualLocation = actualLocationOptional.get();
         int pathId = actualLocation.getPath();
-        pathsForCityCache.put(queryLocation, pathId);
+        pathsForCityCache.put(normalizedQueryLocation, pathId);
         return pathId;
     }
 
