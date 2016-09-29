@@ -43,7 +43,7 @@ public class SpotifyTrivagoApplication extends Application<SpotifyTrivagoApiConf
 
         final ExecutorService findArtistsExecutors = new InstrumentedExecutorService(
                 environment.lifecycle().executorService("FindArtistsInformation")
-                        .minThreads(5)
+                        .minThreads(10)
                         .maxThreads(10)
                         .build(),
                 environment.metrics(),
