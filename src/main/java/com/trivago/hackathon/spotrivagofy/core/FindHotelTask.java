@@ -131,10 +131,11 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
         Response response = null;
         int retryCount = 0;
 
-        while (retryCount < 5 && (response == null || 200 != response.getStatus()))
+        while (!Thread.interrupted() && retryCount < 5 && (response == null || 200 != response.getStatus()))
         {
             try
             {
+                retryCount++;
                 response = client.target(requestBuilder.build())
                         .property(ClientProperties.CONNECT_TIMEOUT, connectTimeout)
                         .property(ClientProperties.READ_TIMEOUT, readTimeout)
@@ -145,13 +146,11 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
             } catch (Exception e)
             {
                 TimeUnit.SECONDS.sleep(1);
-                retryCount++;
                 continue;
             }
             if (200 != response.getStatus())
             {
                 TimeUnit.SECONDS.sleep(1);
-                retryCount++;
             }
         }
         return response;

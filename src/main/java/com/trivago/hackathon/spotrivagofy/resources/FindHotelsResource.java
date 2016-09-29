@@ -13,7 +13,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -95,6 +94,7 @@ public class FindHotelsResource
             }
             toursWithRecommendations.add(tourWithRecommendationResponse);
         }
+
         for (Map.Entry<Future<TourWithRecommendationResponse.HotelRecommendation>, TourWithRecommendationResponse> futureTourWithRecommendationEntry : futuresForRequests.entrySet())
         {
             final TourWithRecommendationResponse tourWithRecommendationResponse = futureTourWithRecommendationEntry.getValue();
@@ -120,10 +120,10 @@ public class FindHotelsResource
         {
             try
             {
-                tour.setArtistInformation(artistFutures.get(tour.getArtist()).get(60, TimeUnit.SECONDS));
+                tour.setArtistInformation(artistFutures.get(tour.getArtist()).get(10, TimeUnit.SECONDS));
             } catch (Exception e)
             {
-                e.printStackTrace();
+                artistFutures.get(tour.getArtist()).cancel(true);
             }
         }
         return toursWithRecommendations;
