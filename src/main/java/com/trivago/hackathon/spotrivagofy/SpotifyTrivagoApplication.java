@@ -1,5 +1,6 @@
 package com.trivago.hackathon.spotrivagofy;
 
+import com.codahale.metrics.InstrumentedExecutorService;
 import com.trivago.hackathon.spotrivagofy.resources.FindHotelsResource;
 
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -32,12 +33,19 @@ public class SpotifyTrivagoApplication extends Application<SpotifyTrivagoApiConf
 
     public void run(SpotifyTrivagoApiConfiguration config, Environment environment) throws Exception
     {
-        final ExecutorService findHotelsExecutors = environment.lifecycle().executorService("FindHotels")
-                .maxThreads(50)
-                .build();
-        final ExecutorService findArtistsExecutors = environment.lifecycle().executorService("FindArtistsInformation")
-                .maxThreads(10)
-                .build();
+        final ExecutorService findHotelsExecutors = new InstrumentedExecutorService(
+                environment.lifecycle().executorService("FindHotels")
+                        .maxThreads(50)
+                        .build(),
+                environment.metrics(),
+                "findHotelsExecutorService");
+
+        final ExecutorService findArtistsExecutors = new InstrumentedExecutorService(
+                environment.lifecycle().executorService("FindArtistsInformation")
+                        .maxThreads(10)
+                        .build(),
+                environment.metrics(),
+                "findArtistsInformationExecutorService");
 
         final Client client = new JerseyClientBuilder(environment).using(config.getJerseyClientConfiguration()).build(getName());
         environment.jersey().register(new FindHotelsResource(client, config, findHotelsExecutors, findArtistsExecutors));
