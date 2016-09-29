@@ -41,14 +41,16 @@ public class FindHotelsResource
 {
     private final Client client;
     private final SpotifyTrivagoApiConfiguration configuration;
-    private ExecutorService findHotelsExecutors;
+    private final ExecutorService findHotelsExecutors;
+    private final ExecutorService findArtistInformationExecutors;
     private Cache<Integer, TourWithRecommendationResponse.HotelRecommendation> hotelRecommendationCache;
 
-    public FindHotelsResource(Client client, SpotifyTrivagoApiConfiguration configuration, ExecutorService findHotelsExecutors)
+    public FindHotelsResource(Client client, SpotifyTrivagoApiConfiguration configuration, ExecutorService findHotelsExecutors, ExecutorService findArtistInformationExecutors)
     {
         this.client = client;
         this.configuration = configuration;
         this.findHotelsExecutors = findHotelsExecutors;
+        this.findArtistInformationExecutors = findArtistInformationExecutors;
 
         hotelRecommendationCache = TCacheFactory.standardFactory()
                 .<Integer, TourWithRecommendationResponse.HotelRecommendation>builder()
@@ -69,7 +71,7 @@ public class FindHotelsResource
         Map<String, Future<String>> artistFutures = new HashMap<>(artists.size());
         for (String artist : artists)
         {
-            final Future<String> artistFuture = findHotelsExecutors.submit(new FindArtistInformationTask(artist, client, configuration));
+            final Future<String> artistFuture = findArtistInformationExecutors.submit(new FindArtistInformationTask(artist, client, configuration));
             artistFutures.put(artist, artistFuture);
         }
 
@@ -109,6 +111,7 @@ public class FindHotelsResource
 
             } catch (TimeoutException | ExecutionException | InterruptedException e)
             {
+                futureTourWithRecommendationEntry.getKey().cancel(true);
                 tourWithRecommendationResponse.setHotelRecommendation(null);
             }
         }
