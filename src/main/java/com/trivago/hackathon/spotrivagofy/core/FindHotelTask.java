@@ -3,6 +3,8 @@ package com.trivago.hackathon.spotrivagofy.core;
 import com.trivago.hackathon.spotrivagofy.api.HotelsResponse;
 import com.trivago.hackathon.spotrivagofy.api.LocationsResponse;
 import com.trivago.hackathon.spotrivagofy.api.TourWithRecommendationResponse;
+import com.trivago.triava.tcache.TCacheFactory;
+import com.trivago.triava.tcache.eviction.Cache;
 
 import org.glassfish.jersey.client.ClientProperties;
 
@@ -12,11 +14,9 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
@@ -31,6 +31,8 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
     private String accessId;
     private String secretKey;
     private Client client;
+
+    private static Cache<String, Integer> pathsForCityCache = TCacheFactory.standardFactory().<String, Integer>builder().setMaxCacheTime(60 * 60 * 24).build();
 
     public FindHotelTask(String city, String date, String accessId, String secretKey, Client client)
     {
@@ -88,6 +90,12 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
 
     private int findBestPathId(String queryLocation) throws UnsupportedEncodingException, InterruptedException, InvalidKeyException, NoSuchAlgorithmException
     {
+        final Integer pathIdFromCache = pathsForCityCache.get(queryLocation);
+        if (pathIdFromCache != null)
+        {
+            return pathIdFromCache;
+        }
+
         final TrivagoRequestBuilder requestBuilder = new TrivagoRequestBuilder(accessId, secretKey);
         requestBuilder.setPath("/webservice/tas/locations");
         requestBuilder.setQuery(queryLocation);
@@ -100,24 +108,15 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
         {
             return -1;
         }
-        final Map<Integer, Long> collectedPaths = responseEntity.get_embedded().getLocations().stream().map(LocationsResponse.Locations.Location::getPath).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-        if (collectedPaths.isEmpty())
+        final Optional<LocationsResponse.Locations.Location> actualLocationOptional = responseEntity.get_embedded().getLocations().stream().sorted((l1, l2) -> Integer.compare(l1.getCount(), l2.getCount())).findFirst();
+        if (!actualLocationOptional.isPresent())
         {
             return -1;
         }
-
-        int pathId = -1;
-        long maxCount = -1;
-
-        for (Map.Entry<Integer, Long> entry : collectedPaths.entrySet())
-        {
-            if (entry.getValue() > maxCount)
-            {
-                pathId = entry.getKey();
-                maxCount = entry.getValue();
-            }
-        }
+        final LocationsResponse.Locations.Location actualLocation = actualLocationOptional.get();
+        int pathId = actualLocation.getPath();
+        pathsForCityCache.put(queryLocation, pathId);
         return pathId;
     }
 

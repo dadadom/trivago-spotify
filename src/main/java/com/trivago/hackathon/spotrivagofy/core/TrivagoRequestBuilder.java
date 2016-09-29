@@ -2,6 +2,7 @@ package com.trivago.hackathon.spotrivagofy.core;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -135,4 +136,10 @@ public class TrivagoRequestBuilder
         return formattedLocalDateInUtc;
     }
 
+    public int getCacheKey()
+    {
+        final HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
+        hashCodeBuilder.append(endDate).append(limit).append(pathId).append(query).append(startDate);
+        return hashCodeBuilder.toHashCode();
+    }
 }
