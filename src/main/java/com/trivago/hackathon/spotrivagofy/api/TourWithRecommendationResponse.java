@@ -68,6 +68,7 @@ public class TourWithRecommendationResponse
     {
         private HotelsResponse.Hotel hotel;
         private boolean error = true;
+        private String errorMessage;
 
         public HotelsResponse.Hotel getHotel()
         {
@@ -90,5 +91,14 @@ public class TourWithRecommendationResponse
         }
 
 
+        public void setErrorMessage(String errorMessage)
+        {
+            this.errorMessage = errorMessage;
+        }
+
+        public String getErrorMessage()
+        {
+            return errorMessage;
+        }
     }
 }

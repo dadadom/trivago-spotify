@@ -10,6 +10,8 @@ import com.trivago.triava.tcache.TCacheFactory;
 import com.trivago.triava.tcache.eviction.Cache;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +40,9 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 public class FindHotelsResource
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(FindHotelsResource.class);
+
     private final Client client;
     private final SpotifyTrivagoConfiguration configuration;
     private final ExecutorService findHotelsExecutors;
@@ -95,14 +100,13 @@ public class FindHotelsResource
             toursWithRecommendations.add(tourWithRecommendationResponse);
         }
 
-        int timeout = 30;
         for (Map.Entry<Future<TourWithRecommendationResponse.HotelRecommendation>, TourWithRecommendationResponse> futureTourWithRecommendationEntry : futuresForRequests.entrySet())
         {
+            TourWithRecommendationResponse.HotelRecommendation hotelRecommendation = new TourWithRecommendationResponse.HotelRecommendation();
             final TourWithRecommendationResponse tourWithRecommendationResponse = futureTourWithRecommendationEntry.getValue();
             try
             {
-                final TourWithRecommendationResponse.HotelRecommendation hotelRecommendation = futureTourWithRecommendationEntry.getKey().get(timeout, TimeUnit.SECONDS);
-                tourWithRecommendationResponse.setHotelRecommendation(hotelRecommendation);
+                hotelRecommendation = futureTourWithRecommendationEntry.getKey().get(15, TimeUnit.SECONDS);
 
                 // make sure to not put error results into the cache so they are re-fetched every time
                 if (!hotelRecommendation.isError())
@@ -110,21 +114,32 @@ public class FindHotelsResource
                     hotelRecommendationCache.put(new HashCodeBuilder().append(tourWithRecommendationResponse.getCity()).append(tourWithRecommendationResponse.getDate()).toHashCode(), hotelRecommendation);
                 }
 
-            } catch (TimeoutException | ExecutionException | InterruptedException e)
+            } catch (ExecutionException | InterruptedException e)
             {
-                tourWithRecommendationResponse.setHotelRecommendation(null);
+                logger.warn("Exception when trying to get result from findHotel future.", e);
+                hotelRecommendation.setErrorMessage("Unspecified error: " + e.getMessage());
+            } catch (TimeoutException e)
+            {
+                hotelRecommendation.setErrorMessage("Timeout while querying the hotels.");
             }
-            timeout = Math.max(timeout / 2, 1);
+            tourWithRecommendationResponse.setHotelRecommendation(hotelRecommendation);
         }
 
         for (TourWithRecommendationResponse tour : toursWithRecommendations)
         {
+
+            String artistInformation = "";
             try
             {
-                tour.setArtistInformation(artistFutures.get(tour.getArtist()).get(10, TimeUnit.SECONDS));
-            } catch (Exception e)
+                artistInformation = artistFutures.get(tour.getArtist()).get(10, TimeUnit.SECONDS);
+            } catch (TimeoutException e)
             {
+                logger.warn("Timeout of 10 seconds reached when waiting for artist information future.");
+            } catch (InterruptedException | ExecutionException e)
+            {
+                logger.warn("Exception when trying to get artist information future.", e);
             }
+            tour.setArtistInformation(artistInformation);
         }
         return toursWithRecommendations;
     }

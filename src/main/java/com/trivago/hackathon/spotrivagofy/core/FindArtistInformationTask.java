@@ -7,6 +7,8 @@ import com.trivago.triava.tcache.eviction.Cache;
 
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URLEncoder;
 import java.util.concurrent.Callable;
@@ -19,6 +21,8 @@ import javax.ws.rs.core.Response;
  */
 public class FindArtistInformationTask implements Callable<String>
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(FindArtistInformationTask.class);
 
     private final String artist;
     private final String lastFmApiKey;
@@ -60,12 +64,20 @@ public class FindArtistInformationTask implements Callable<String>
         LastFmResponse lastFmResponse = response.readEntity(LastFmResponse.class);
         if (lastFmResponse == null)
         {
+            logger.info("Did not get a response from last.fm.");
             return "";
         }
         else
         {
             description = lastFmResponse.getArtist().getBio().getSummary();
-            descriptionsForArtist.put(artist, description);
+            if (StringUtils.isNotEmpty(description))
+            {
+                descriptionsForArtist.put(artist, description);
+            }
+            else
+            {
+                logger.warn("The summary for the artist '" + artist + "' is empty.");
+            }
             return description;
         }
     }

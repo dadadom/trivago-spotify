@@ -8,6 +8,8 @@ import com.trivago.triava.tcache.TCacheFactory;
 import com.trivago.triava.tcache.eviction.Cache;
 
 import org.glassfish.jersey.client.ClientProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
@@ -27,6 +29,9 @@ import javax.ws.rs.core.Response;
  */
 public class FindHotelTask implements Callable<TourWithRecommendationResponse.HotelRecommendation>
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(FindHotelTask.class);
+
     private String city;
     private String date;
     private String accessId;
@@ -63,6 +68,8 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
 
         if (pathId < 0)
         {
+            hotelRecommendation.setError(true);
+            hotelRecommendation.setErrorMessage("Could not find a valid pathId for the location '" + queryLocation + "'.");
             return hotelRecommendation;
         }
         // now we have the PathId with the maximum responses
@@ -76,7 +83,7 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
 
         Response hotelsResponse = queryAndGetResponse(hotelsRequestBuilder);
 
-        if (hotelsResponse != null && hotelsResponse.getStatus() == 200)
+        if (hotelsResponse != null && hotelsResponse.getStatus() == Response.Status.OK.getStatusCode())
         {
             final HotelsResponse hotelsResponseEntity = hotelsResponse.readEntity(HotelsResponse.class);
             final HotelsResponse.Hotel hotel = hotelsResponseEntity.getHotels().get(0);
@@ -85,8 +92,8 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
         }
         else
         {
-            // just to have a breakpoint
             hotelRecommendation.setError(true);
+            hotelRecommendation.setErrorMessage("Did not get a valid response from the API. Return code from the endpoint is " + (hotelsResponse == null ? "UNDEFINED" : hotelsResponse.getStatus()));
         }
 
         return hotelRecommendation;
@@ -131,7 +138,7 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
         Response response = null;
         int retryCount = 0;
 
-        while (!Thread.interrupted() && retryCount < 5 && (response == null || 200 != response.getStatus()))
+        while (retryCount < 10 && (response == null || Response.Status.OK.getStatusCode() != response.getStatus()))
         {
             try
             {
@@ -148,7 +155,7 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
                 TimeUnit.SECONDS.sleep(1);
                 continue;
             }
-            if (200 != response.getStatus())
+            if (Response.Status.OK.getStatusCode() != response.getStatus())
             {
                 TimeUnit.SECONDS.sleep(1);
             }
