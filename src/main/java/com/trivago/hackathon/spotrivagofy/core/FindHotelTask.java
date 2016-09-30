@@ -108,6 +108,10 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
         {
             return pathIdFromCache;
         }
+        else
+        {
+            pathsForCityCache.put(normalizedQueryLocation, -1, 5, 5);
+        }
 
         final TrivagoRequestBuilder requestBuilder = new TrivagoRequestBuilder(accessId, secretKey);
         requestBuilder.setPath("/webservice/tas/locations");

@@ -48,6 +48,10 @@ public class FindArtistInformationTask implements Callable<String>
         {
             return description;
         }
+        if (description == null)
+        {
+            descriptionsForArtist.put(artist, "loading ...", 5, 5);
+        }
         if (StringUtils.isEmpty(lastFmApiKey))
         {
             return "";
@@ -61,24 +65,36 @@ public class FindArtistInformationTask implements Callable<String>
                 .property(ClientProperties.CONNECT_TIMEOUT, configuration.getConnectTimeout())
                 .property(ClientProperties.READ_TIMEOUT, configuration.getReadTimeout())
                 .request().get();
-        LastFmResponse lastFmResponse = response.readEntity(LastFmResponse.class);
-        if (lastFmResponse == null)
+        LastFmResponse lastFmResponse;
+        try
         {
-            logger.info("Did not get a response from last.fm.");
+            lastFmResponse = response.readEntity(LastFmResponse.class);
+        } catch (Exception e)
+        {
+            logger.warn("Could not read response from lastFM. Response is '" + response.readEntity(String.class) + "'.");
             return "";
+        }
+        if (lastFmResponse.getError() != null)
+        {
+            String errorMessage = lastFmResponse.getMessage();
+            logger.warn("Error when querying lastFM. " + errorMessage);
+            descriptionsForArtist.put(artist, errorMessage);
+            return errorMessage;
+        }
+        if (lastFmResponse.getArtist() == null || lastFmResponse.getArtist().getBio() == null)
+        {
+            logger.warn("Could not read response from lastFM. Response is '" + response.readEntity(String.class) + "'.");
+            return "";
+        }
+        description = lastFmResponse.getArtist().getBio().getSummary();
+        if (StringUtils.isNotEmpty(description))
+        {
+            descriptionsForArtist.put(artist, description);
         }
         else
         {
-            description = lastFmResponse.getArtist().getBio().getSummary();
-            if (StringUtils.isNotEmpty(description))
-            {
-                descriptionsForArtist.put(artist, description);
-            }
-            else
-            {
-                logger.warn("The summary for the artist '" + artist + "' is empty.");
-            }
-            return description;
+            logger.warn("The summary for the artist '" + artist + "' is empty.");
         }
+        return description;
     }
 }

@@ -8,7 +8,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LastFmResponse
 {
+    private Integer error;
     private Artist artist;
+    private String message;
+
+    public Integer getError()
+    {
+        return error;
+    }
+
+    public void setError(Integer error)
+    {
+        this.error = error;
+    }
 
     public Artist getArtist()
     {
@@ -18,6 +30,16 @@ public class LastFmResponse
     public void setArtist(Artist artist)
     {
         this.artist = artist;
+    }
+
+    public String getMessage()
+    {
+        return message;
+    }
+
+    public void setMessage(String message)
+    {
+        this.message = message;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
