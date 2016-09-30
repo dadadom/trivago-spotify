@@ -24,9 +24,6 @@ import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 
-/**
- * Created by Dominik Sandjaja on 29/09/16.
- */
 public class FindHotelTask implements Callable<TourWithRecommendationResponse.HotelRecommendation>
 {
 
