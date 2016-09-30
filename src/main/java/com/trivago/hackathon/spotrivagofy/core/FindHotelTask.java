@@ -65,8 +65,12 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
 
         if (pathId < 0)
         {
+            String errorMessage = "Could not find a valid pathId for the location '" + queryLocation + "'.";
+
+            logger.warn(errorMessage);
+
             hotelRecommendation.setError(true);
-            hotelRecommendation.setErrorMessage("Could not find a valid pathId for the location '" + queryLocation + "'.");
+            hotelRecommendation.setErrorMessage(errorMessage);
             return hotelRecommendation;
         }
         // now we have the PathId with the maximum responses
@@ -126,6 +130,7 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
         final Optional<LocationsResponse.Locations.Location> actualLocationOptional = responseEntity.get_embedded().getLocations().stream().sorted((l1, l2) -> Integer.compare(l1.getCount(), l2.getCount())).findFirst();
         if (!actualLocationOptional.isPresent())
         {
+            logger.warn("Got a response, but no location could be found. Response: {}", responseEntity);
             return -1;
         }
         final LocationsResponse.Locations.Location actualLocation = actualLocationOptional.get();
@@ -144,7 +149,10 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
             try
             {
                 retryCount++;
-                response = client.target(requestBuilder.build())
+                String request = requestBuilder.build();
+                logger.trace("Executing hotels request number {}: '{}'.", retryCount, request);
+
+                response = client.target(request)
                         .property(ClientProperties.CONNECT_TIMEOUT, connectTimeout)
                         .property(ClientProperties.READ_TIMEOUT, readTimeout)
                         .request()
@@ -153,6 +161,7 @@ public class FindHotelTask implements Callable<TourWithRecommendationResponse.Ho
                         .get();
             } catch (Exception e)
             {
+                logger.debug("Got an exception when requesting the trivago API.", e);
                 TimeUnit.SECONDS.sleep(1);
                 continue;
             }
